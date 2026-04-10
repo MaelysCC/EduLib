@@ -11,15 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data['contenu']     = trim($_POST['contenu']     ?? '');
     $data['categorie']   = trim($_POST['categorie']   ?? '');
 
-    if ($data['titre'] === '')                              $errors[] = 'Le titre est requis.';
-    if ($data['contenu'] === '')                            $errors[] = 'Le contenu est requis.';
-    if (!in_array($data['categorie'], CATEGORIES, true))    $errors[] = 'Catégorie invalide.';
+    if ($data['titre'] === '')                           { $errors[] = 'Le titre est requis.'; }
+    if ($data['contenu'] === '')                         { $errors[] = 'Le contenu est requis.'; }
+    if (!in_array($data['categorie'], CATEGORIES, true)) { $errors[] = 'Catégorie invalide.'; }
 
     $imageFilename = null;
     if (empty($errors)) {
         try {
             $imageFilename = handleImageUpload('image');
-        } catch (RuntimeException $e) {
+        } catch (ImageUploadException $e) {
             $errors[] = $e->getMessage();
         }
     }
@@ -123,8 +123,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </main>
 
 <footer>
-    <div class="container">
-        <a href="#">Mentions légales</a> &mdash; EduLib &copy; <?= date('Y') ?>
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="footer-logo">EduLib</span>
+            <div class="footer-social">
+                <a href="#"><span aria-hidden="true">IG</span><span class="sr-only">Instagram</span></a>
+                <a href="#"><span aria-hidden="true">in</span><span class="sr-only">LinkedIn</span></a>
+                <a href="#"><span aria-hidden="true">✕</span><span class="sr-only">X / Twitter</span></a>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <strong>Navigation</strong>
+                <a href="/mini-projet/">Accueil</a>
+                <a href="/mini-projet/resources.php">Ressources</a>
+                <a href="/mini-projet/add-resource.php">Déposer une fiche</a>
+            </div>
+            <div class="footer-col">
+                <strong>Compte</strong>
+                <a href="/mini-projet/login.php">Connexion</a>
+                <a href="/mini-projet/register.php">S'inscrire</a>
+                <a href="/mini-projet/profile.php">Mon profil</a>
+            </div>
+            <div class="footer-col">
+                <strong>Légal</strong>
+                <a href="#">Mentions légales</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
     </div>
 </footer>
 

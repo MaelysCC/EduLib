@@ -29,6 +29,19 @@ CREATE TABLE IF NOT EXISTS ressources (
 -- Si vous mettez à jour une base existante, exécutez cette ligne :
 -- ALTER TABLE ressources ADD COLUMN image VARCHAR(255) NULL AFTER categorie;
 
+CREATE TABLE IF NOT EXISTS commentaires (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    ressource_id INT NOT NULL,
+    auteur_id    INT NOT NULL,
+    contenu      TEXT NOT NULL,
+    date_depot   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ressource_id) REFERENCES ressources(id) ON DELETE CASCADE,
+    FOREIGN KEY (auteur_id)    REFERENCES utilisateurs(id) ON DELETE CASCADE
+);
+
+-- Si vous mettez à jour une base existante, exécutez cette ligne :
+-- CREATE TABLE IF NOT EXISTS commentaires (id INT AUTO_INCREMENT PRIMARY KEY, ressource_id INT NOT NULL, auteur_id INT NOT NULL, contenu TEXT NOT NULL, date_depot DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (ressource_id) REFERENCES ressources(id) ON DELETE CASCADE, FOREIGN KEY (auteur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE);
+
 -- Compte administrateur par défaut
 -- Email : admin@edulib.fr  |  Mot de passe : Admin1234
 INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role)

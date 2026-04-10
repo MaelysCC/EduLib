@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/config/db.php';
 
-// Quelques stats pour la page d'accueil
 try {
     $pdo = getPDO();
     $nbRessources = $pdo->query('SELECT COUNT(*) FROM ressources')->fetchColumn();
@@ -35,16 +34,15 @@ try {
                 <a href="/mini-projet/logout.php">Déconnexion</a>
             <?php else: ?>
                 <a href="/mini-projet/login.php">Connexion</a>
-                <a href="/mini-projet/register.php" class="btn btn-sm" style="margin-left:.25rem">S'inscrire</a>
             <?php endif; ?>
         </div>
     </div>
 </nav>
 
 <section class="hero">
-    <div class="container">
+    <div class="hero-box">
+        <div class="hero-eyebrow">EduLib c'est quoi ?</div>
         <h1>Partagez et trouvez des ressources étudiantes</h1>
-        <p>EduLib centralise les fiches de cours, résumés et supports pédagogiques créés par les étudiants, pour les étudiants.</p>
         <div class="hero-actions">
             <?php if (!isLoggedIn()): ?>
                 <a href="/mini-projet/register.php" class="btn">S'inscrire gratuitement</a>
@@ -60,32 +58,29 @@ try {
 <main>
     <div class="container">
 
-        <div class="eco-block mt-3">
-            <strong>Engagement écologique</strong>
-            Site sobre : &lt;&nbsp;100&nbsp;Ko par page &mdash; 0 tracker &mdash; police système uniquement &mdash; HTML/CSS pur &mdash; hébergement vert
+        <div class="eco-block">
+            <div class="eco-label">Mini projet Green IT</div>
+            <h2>Engagement écologique</h2>
+            <p>Le numérique n'est pas immatériel : chaque page chargée, chaque requête, chaque média embarqué, chaque bibliothèque ajoutée consomme des ressources. Avec EduLib, vous pourrez réviser vos CE et DE tout en étant écologique, grâce à cet espace centralisé et sobre pour déposer, consulter et trouver des fiches de cours par matière. Plus de temps perdu à chercher des ressources pédagogiques dispersées sur de multiples plateformes avec notre site !</p>
         </div>
 
-        <div class="flex-between mt-3 mb-2">
-            <h2 style="font-size:1.1rem">Chiffres clés</h2>
-        </div>
-
-        <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;padding:2rem 0;border-bottom:1px solid var(--border)">
             <div class="card" style="flex:1;min-width:140px;text-align:center">
-                <div style="font-size:2rem;font-weight:700;color:var(--accent)"><?= (int)$nbRessources ?></div>
+                <div style="font-size:2rem;font-weight:800;color:var(--accent)"><?= (int)$nbRessources ?></div>
                 <div class="text-muted text-sm">fiches disponibles</div>
             </div>
             <div class="card" style="flex:1;min-width:140px;text-align:center">
-                <div style="font-size:2rem;font-weight:700;color:var(--accent)"><?= (int)$nbUsers ?></div>
+                <div style="font-size:2rem;font-weight:800;color:var(--accent)"><?= (int)$nbUsers ?></div>
                 <div class="text-muted text-sm">membres inscrits</div>
             </div>
             <div class="card" style="flex:1;min-width:140px;text-align:center">
-                <div style="font-size:2rem;font-weight:700;color:var(--accent)"><?= count(CATEGORIES) ?></div>
+                <div style="font-size:2rem;font-weight:800;color:var(--accent)"><?= count(CATEGORIES) ?></div>
                 <div class="text-muted text-sm">catégories</div>
             </div>
         </div>
 
-        <div class="mt-3 mb-1">
-            <h2 style="font-size:1.1rem;margin-bottom:.75rem">Catégories disponibles</h2>
+        <div style="padding:2rem 0">
+            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem">Catégories disponibles</h2>
             <div style="display:flex;gap:.5rem;flex-wrap:wrap">
                 <?php foreach (CATEGORIES as $cat): ?>
                     <a href="/mini-projet/resources.php?categorie=<?= urlencode($cat) ?>" class="badge" style="text-decoration:none;color:var(--accent)">
@@ -99,8 +94,34 @@ try {
 </main>
 
 <footer>
-    <div class="container">
-        <a href="#">Mentions légales</a> &mdash; <a href="#">Contact</a> &mdash; EduLib &copy; <?= date('Y') ?>
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="footer-logo">EduLib</span>
+            <div class="footer-social">
+                <a href="#"><span aria-hidden="true">IG</span><span class="sr-only">Instagram</span></a>
+                <a href="#"><span aria-hidden="true">in</span><span class="sr-only">LinkedIn</span></a>
+                <a href="#"><span aria-hidden="true">✕</span><span class="sr-only">X / Twitter</span></a>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <strong>Navigation</strong>
+                <a href="/mini-projet/">Accueil</a>
+                <a href="/mini-projet/resources.php">Ressources</a>
+                <a href="/mini-projet/add-resource.php">Déposer une fiche</a>
+            </div>
+            <div class="footer-col">
+                <strong>Compte</strong>
+                <a href="/mini-projet/login.php">Connexion</a>
+                <a href="/mini-projet/register.php">S'inscrire</a>
+                <a href="/mini-projet/profile.php">Mon profil</a>
+            </div>
+            <div class="footer-col">
+                <strong>Légal</strong>
+                <a href="#">Mentions légales</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
     </div>
 </footer>
 

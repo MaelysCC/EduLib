@@ -31,6 +31,17 @@ $sql .= ' ORDER BY r.date_depot DESC';
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $ressources = $stmt->fetchAll();
+
+// Grouper par catégorie
+$grouped = [];
+foreach (CATEGORIES as $cat) {
+    $grouped[$cat] = [];
+}
+foreach ($ressources as $r) {
+    if (isset($grouped[$r['categorie']])) {
+        $grouped[$r['categorie']][] = $r;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -56,27 +67,30 @@ $ressources = $stmt->fetchAll();
                 <a href="/mini-projet/logout.php">Déconnexion</a>
             <?php else: ?>
                 <a href="/mini-projet/login.php">Connexion</a>
-                <a href="/mini-projet/register.php" class="btn btn-sm" style="margin-left:.25rem">S'inscrire</a>
             <?php endif; ?>
         </div>
     </div>
 </nav>
 
+<div class="resources-hero">
+    <div class="container">
+        <h1>Ressources</h1>
+        <p>Ajoute ou trouve la fiche de révisions ou le document dont tu as besoin</p>
+        <div class="resources-hero-actions">
+            <a href="#filter" class="btn">Filtre</a>
+            <?php if (isLoggedIn()): ?>
+                <a href="/mini-projet/add-resource.php" class="btn btn-outline">Ajout</a>
+            <?php else: ?>
+                <a href="/mini-projet/login.php" class="btn btn-outline">Connexion pour ajouter</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
 <main>
     <div class="container">
-        <div class="page-header">
-            <div class="flex-between">
-                <div>
-                    <h1>Ressources pédagogiques</h1>
-                    <p><?= count($ressources) ?> fiche<?= count($ressources) > 1 ? 's' : '' ?> trouvée<?= count($ressources) > 1 ? 's' : '' ?></p>
-                </div>
-                <?php if (isLoggedIn()): ?>
-                    <a href="/mini-projet/add-resource.php" class="btn">+ Déposer une fiche</a>
-                <?php endif; ?>
-            </div>
-        </div>
 
-        <form method="get" class="filter-bar">
+        <form id="filter" method="get" class="filter-bar" style="padding:1rem 0;border-bottom:1px solid var(--border);margin-bottom:1.25rem">
             <select name="categorie" onchange="this.form.submit()">
                 <option value="">Toutes les catégories</option>
                 <?php foreach (CATEGORIES as $cat): ?>
@@ -86,7 +100,7 @@ $ressources = $stmt->fetchAll();
                 <?php endforeach; ?>
             </select>
             <input type="search" name="q" placeholder="Rechercher…" value="<?= h($search) ?>">
-            <button type="submit" class="btn btn-outline">Filtrer</button>
+            <button type="submit" class="btn">Filtrer</button>
             <?php if ($categorie || $search): ?>
                 <a href="/mini-projet/resources.php" class="btn btn-muted">Réinitialiser</a>
             <?php endif; ?>
@@ -95,31 +109,82 @@ $ressources = $stmt->fetchAll();
         <?php if (empty($ressources)): ?>
             <div class="alert alert-info">Aucune ressource ne correspond à votre recherche.</div>
         <?php else: ?>
-            <?php foreach ($ressources as $r): ?>
-                <div class="resource-item">
-                    <div>
-                        <h3><a href="/mini-projet/resource-detail.php?id=<?= $r['id'] ?>"><?= h($r['titre']) ?></a></h3>
-                        <div class="resource-meta">
-                            <span class="badge"><?= h($r['categorie']) ?></span>
-                            &nbsp;<?= h($r['prenom']) ?> <?= h($r['nom']) ?>
-                            &nbsp;&mdash;&nbsp;<?= date('d/m/Y', strtotime($r['date_depot'])) ?>
-                        </div>
-                        <?php if ($r['description']): ?>
-                            <p class="text-sm text-muted mt-1" style="margin-top:.3rem"><?= h(mb_substr($r['description'], 0, 120)) ?><?= mb_strlen($r['description']) > 120 ? '…' : '' ?></p>
+            <?php foreach ($grouped as $cat => $items):
+                // Masquer les catégories vides quand on filtre par catégorie ou mot-clé
+                if (empty($items) && ($categorie !== '' || $search !== '')) {
+                    continue;
+                }
+                // Sans filtre, masquer les catégories sans ressources
+                if (empty($items)) {
+                    continue;
+                }
+                $open = ($categorie === $cat || $search !== '') ? 'open' : '';
+            ?>
+                <details class="accordion" <?= $open ?>>
+                    <summary>
+                        <?= h($cat) ?>
+                        <span class="text-muted text-sm">(<?= count($items) ?>)</span>
+                        <span class="chevron" aria-hidden="true">▾</span>
+                    </summary>
+                    <div class="accordion-body">
+                        <?php if (empty($items)): ?>
+                            <div class="accordion-empty">Aucune ressource dans cette catégorie.</div>
+                        <?php else: ?>
+                            <?php foreach ($items as $r): ?>
+                                <div class="resource-item">
+                                    <div>
+                                        <h3><a href="/mini-projet/resource-detail.php?id=<?= $r['id'] ?>"><?= h($r['titre']) ?></a></h3>
+                                        <div class="resource-meta">
+                                            <?= h($r['prenom']) ?> <?= h($r['nom']) ?>
+                                            &nbsp;&mdash;&nbsp;<?= date('d/m/Y', strtotime($r['date_depot'])) ?>
+                                        </div>
+                                        <?php if ($r['description']): ?>
+                                            <p class="text-sm text-muted" style="margin-top:.3rem"><?= h(mb_substr($r['description'], 0, 120)) ?><?= mb_strlen($r['description']) > 120 ? '…' : '' ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="resource-actions">
+                                        <a href="/mini-projet/resource-detail.php?id=<?= $r['id'] ?>" class="btn btn-sm btn-outline">Voir</a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
-                    <div class="resource-actions">
-                        <a href="/mini-projet/resource-detail.php?id=<?= $r['id'] ?>" class="btn btn-sm btn-outline">Voir</a>
-                    </div>
-                </div>
+                </details>
             <?php endforeach; ?>
         <?php endif; ?>
+
     </div>
 </main>
 
 <footer>
-    <div class="container">
-        <a href="#">Mentions légales</a> &mdash; EduLib &copy; <?= date('Y') ?>
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="footer-logo">EduLib</span>
+            <div class="footer-social">
+                <a href="#"><span aria-hidden="true">IG</span><span class="sr-only">Instagram</span></a>
+                <a href="#"><span aria-hidden="true">in</span><span class="sr-only">LinkedIn</span></a>
+                <a href="#"><span aria-hidden="true">✕</span><span class="sr-only">X / Twitter</span></a>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <strong>Navigation</strong>
+                <a href="/mini-projet/">Accueil</a>
+                <a href="/mini-projet/resources.php">Ressources</a>
+                <a href="/mini-projet/add-resource.php">Déposer une fiche</a>
+            </div>
+            <div class="footer-col">
+                <strong>Compte</strong>
+                <a href="/mini-projet/login.php">Connexion</a>
+                <a href="/mini-projet/register.php">S'inscrire</a>
+                <a href="/mini-projet/profile.php">Mon profil</a>
+            </div>
+            <div class="footer-col">
+                <strong>Légal</strong>
+                <a href="#">Mentions légales</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
     </div>
 </footer>
 

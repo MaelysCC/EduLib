@@ -26,15 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $mdp2   = $_POST['nouveau_mdp2']   ?? '';
     $mdpActuel = $_POST['mdp_actuel']  ?? '';
 
-    if ($nom === '')    $errors[] = 'Le nom est requis.';
-    if ($prenom === '') $errors[] = 'Le prénom est requis.';
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email invalide.';
+    if ($nom === '')    { $errors[] = 'Le nom est requis.'; }
+    if ($prenom === '') { $errors[] = 'Le prénom est requis.'; }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $errors[] = 'Email invalide.'; }
 
     // Vérification unicité email (sauf soi-même)
     if (empty($errors)) {
         $chk = $pdo->prepare('SELECT id FROM utilisateurs WHERE email = ? AND id != ?');
         $chk->execute([$email, $_SESSION['user_id']]);
-        if ($chk->fetch()) $errors[] = 'Cet email est déjà utilisé par un autre compte.';
+        if ($chk->fetch()) { $errors[] = 'Cet email est déjà utilisé par un autre compte.'; }
     }
 
     // Changement de mot de passe (optionnel)
@@ -162,7 +162,7 @@ $ressources = $mesRes->fetchAll();
             <?php foreach ($ressources as $res): ?>
                 <div class="resource-item">
                     <div>
-                        <h3><a href="/mini-projet/resource-detail.php?id=<?= $res['id'] ?>"><?= h($res['titre']) ?></a></h3>
+                        <h3><a href="/mini-projet/resource-detail.php?id=<?= $res['id'] ?>"><?= h($res['titre'] ?: '(sans titre)') ?></a></h3>
                         <div class="resource-meta">
                             <span class="badge"><?= h($res['categorie']) ?></span>
                             &nbsp;<?= date('d/m/Y', strtotime($res['date_depot'])) ?>
@@ -197,8 +197,34 @@ $ressources = $mesRes->fetchAll();
 </main>
 
 <footer>
-    <div class="container">
-        <a href="#">Mentions légales</a> &mdash; EduLib &copy; <?= date('Y') ?>
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="footer-logo">EduLib</span>
+            <div class="footer-social">
+                <a href="#"><span aria-hidden="true">IG</span><span class="sr-only">Instagram</span></a>
+                <a href="#"><span aria-hidden="true">in</span><span class="sr-only">LinkedIn</span></a>
+                <a href="#"><span aria-hidden="true">✕</span><span class="sr-only">X / Twitter</span></a>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <strong>Navigation</strong>
+                <a href="/mini-projet/">Accueil</a>
+                <a href="/mini-projet/resources.php">Ressources</a>
+                <a href="/mini-projet/add-resource.php">Déposer une fiche</a>
+            </div>
+            <div class="footer-col">
+                <strong>Compte</strong>
+                <a href="/mini-projet/login.php">Connexion</a>
+                <a href="/mini-projet/register.php">S'inscrire</a>
+                <a href="/mini-projet/profile.php">Mon profil</a>
+            </div>
+            <div class="footer-col">
+                <strong>Légal</strong>
+                <a href="#">Mentions légales</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
     </div>
 </footer>
 

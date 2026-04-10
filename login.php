@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </nav>
 
 <main>
+    <div class="auth-wrap">
     <div class="auth-box">
         <h1>Connexion</h1>
 
@@ -77,18 +78,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" id="mot_de_passe" name="mot_de_passe"
                        required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn" style="width:100%">Se connecter</button>
+            <button type="submit" class="btn btn-dark" style="width:100%">Se connecter</button>
         </form>
 
         <p class="text-sm text-muted mt-2" style="text-align:center">
             Pas encore de compte ? <a href="/mini-projet/register.php">S'inscrire</a>
         </p>
     </div>
+    </div>
 </main>
 
 <footer>
-    <div class="container">
-        <a href="#">Mentions légales</a> &mdash; EduLib &copy; <?= date('Y') ?>
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="footer-logo">EduLib</span>
+            <div class="footer-social">
+                <a href="#"><span aria-hidden="true">IG</span><span class="sr-only">Instagram</span></a>
+                <a href="#"><span aria-hidden="true">in</span><span class="sr-only">LinkedIn</span></a>
+                <a href="#"><span aria-hidden="true">✕</span><span class="sr-only">X / Twitter</span></a>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <strong>Navigation</strong>
+                <a href="/mini-projet/">Accueil</a>
+                <a href="/mini-projet/resources.php">Ressources</a>
+                <a href="/mini-projet/add-resource.php">Déposer une fiche</a>
+            </div>
+            <div class="footer-col">
+                <strong>Compte</strong>
+                <a href="/mini-projet/login.php">Connexion</a>
+                <a href="/mini-projet/register.php">S'inscrire</a>
+                <a href="/mini-projet/profile.php">Mon profil</a>
+            </div>
+            <div class="footer-col">
+                <strong>Légal</strong>
+                <a href="#">Mentions légales</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
     </div>
 </footer>
 

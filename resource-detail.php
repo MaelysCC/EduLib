@@ -7,7 +7,8 @@ if ($id <= 0) {
     exit;
 }
 
-$stmt = getPDO()->prepare(
+$pdo  = getPDO();
+$stmt = $pdo->prepare(
     'SELECT r.*, u.nom, u.prenom
      FROM ressources r
      JOIN utilisateurs u ON u.id = r.auteur_id
@@ -22,6 +23,32 @@ if (!$r) {
 }
 
 $canEdit = isLoggedIn() && ($_SESSION['user_id'] === $r['auteur_id'] || isAdmin());
+
+// Soumission d'un commentaire
+$commentError = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
+    $contenu = trim($_POST['contenu'] ?? '');
+    if ($contenu === '') {
+        $commentError = 'Le commentaire ne peut pas être vide.';
+    } else {
+        $ins = $pdo->prepare('INSERT INTO commentaires (ressource_id, auteur_id, contenu) VALUES (?, ?, ?)');
+        $ins->execute([$id, $_SESSION['user_id'], $contenu]);
+        header('Location: /mini-projet/resource-detail.php?id=' . $id . '#commentaires');
+        exit;
+    }
+}
+
+// Chargement des commentaires
+$cstmt = $pdo->prepare(
+    'SELECT c.id, c.contenu, c.date_depot, c.auteur_id,
+            u.nom, u.prenom, u.role
+     FROM commentaires c
+     JOIN utilisateurs u ON u.id = c.auteur_id
+     WHERE c.ressource_id = ?
+     ORDER BY c.date_depot ASC'
+);
+$cstmt->execute([$id]);
+$commentaires = $cstmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -97,12 +124,102 @@ $canEdit = isLoggedIn() && ($_SESSION['user_id'] === $r['auteur_id'] || isAdmin(
         <div class="card">
             <div class="pre-wrap"><?= h($r['contenu']) ?></div>
         </div>
+
+        <!-- Section commentaires -->
+        <div id="commentaires" class="mt-3">
+            <h2 style="font-size:1.15rem;margin-bottom:1rem">
+                Discussion
+                <span class="badge" style="font-size:.8rem;vertical-align:middle"><?= count($commentaires) ?></span>
+            </h2>
+
+            <?php if ($commentaires): ?>
+                <div class="comment-list">
+                    <?php foreach ($commentaires as $c): ?>
+                        <?php $isAdmin = $c['role'] === 'admin'; ?>
+                        <div class="comment-item <?= $isAdmin ? 'comment-admin' : '' ?>">
+                            <div class="comment-header">
+                                <span class="comment-author">
+                                    <?= h($c['prenom']) ?> <?= h($c['nom']) ?>
+                                    <?php if ($isAdmin): ?>
+                                        <span class="comment-badge-admin">Admin</span>
+                                    <?php endif; ?>
+                                </span>
+                                <span class="comment-date text-muted text-sm">
+                                    <?= date('d/m/Y à H:i', strtotime($c['date_depot'])) ?>
+                                </span>
+                            </div>
+                            <div class="comment-body pre-wrap"><?= h($c['contenu']) ?></div>
+                            <?php if (isLoggedIn() && ($c['auteur_id'] === $_SESSION['user_id'] || isAdmin())): ?>
+                                <div class="comment-actions">
+                                    <form method="post" action="/mini-projet/delete-comment.php">
+                                        <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Supprimer ce commentaire ?')">
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p class="text-muted text-sm">Aucun commentaire pour l'instant. Soyez le premier à réagir !</p>
+            <?php endif; ?>
+
+            <?php if (isLoggedIn()): ?>
+                <div class="mt-2">
+                    <h3 style="font-size:1rem;margin-bottom:.6rem">Laisser un commentaire</h3>
+                    <?php if ($commentError): ?>
+                        <div class="alert alert-error mb-1"><?= h($commentError) ?></div>
+                    <?php endif; ?>
+                    <form method="post" action="/mini-projet/resource-detail.php?id=<?= $id ?>#commentaires">
+                        <div class="form-group">
+                            <textarea name="contenu" required
+                                      style="min-height:90px"
+                                      placeholder="Votre commentaire…"></textarea>
+                        </div>
+                        <button type="submit" class="btn">Publier</button>
+                    </form>
+                </div>
+            <?php else: ?>
+                <p class="text-sm text-muted mt-2">
+                    <a href="/mini-projet/login.php">Connectez-vous</a> pour laisser un commentaire.
+                </p>
+            <?php endif; ?>
+        </div>
     </div>
 </main>
 
 <footer>
-    <div class="container">
-        <a href="#">Mentions légales</a> &mdash; EduLib &copy; <?= date('Y') ?>
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="footer-logo">EduLib</span>
+            <div class="footer-social">
+                <a href="#"><span aria-hidden="true">IG</span><span class="sr-only">Instagram</span></a>
+                <a href="#"><span aria-hidden="true">in</span><span class="sr-only">LinkedIn</span></a>
+                <a href="#"><span aria-hidden="true">✕</span><span class="sr-only">X / Twitter</span></a>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <strong>Navigation</strong>
+                <a href="/mini-projet/">Accueil</a>
+                <a href="/mini-projet/resources.php">Ressources</a>
+                <a href="/mini-projet/add-resource.php">Déposer une fiche</a>
+            </div>
+            <div class="footer-col">
+                <strong>Compte</strong>
+                <a href="/mini-projet/login.php">Connexion</a>
+                <a href="/mini-projet/register.php">S'inscrire</a>
+                <a href="/mini-projet/profile.php">Mon profil</a>
+            </div>
+            <div class="footer-col">
+                <strong>Légal</strong>
+                <a href="#">Mentions légales</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
     </div>
 </footer>
 

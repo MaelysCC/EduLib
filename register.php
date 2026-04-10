@@ -16,11 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mdp            = $_POST['mot_de_passe']     ?? '';
     $mdp2           = $_POST['mot_de_passe2']    ?? '';
 
-    if ($data['nom'] === '')    $errors[] = 'Le nom est requis.';
-    if ($data['prenom'] === '') $errors[] = 'Le prénom est requis.';
-    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Adresse e-mail invalide.';
-    if (strlen($mdp) < 8)       $errors[] = 'Le mot de passe doit contenir au moins 8 caractères.';
-    if ($mdp !== $mdp2)         $errors[] = 'Les mots de passe ne correspondent pas.';
+    if ($data['nom'] === '')    { $errors[] = 'Le nom est requis.'; }
+    if ($data['prenom'] === '') { $errors[] = 'Le prénom est requis.'; }
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) { $errors[] = 'Adresse e-mail invalide.'; }
+    if (strlen($mdp) < 8)       { $errors[] = 'Le mot de passe doit contenir au moins 8 caractères.'; }
+    if ($mdp !== $mdp2)         { $errors[] = 'Les mots de passe ne correspondent pas.'; }
 
     if (empty($errors)) {
         $pdo = getPDO();
@@ -62,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </nav>
 
 <main>
+    <div class="auth-wrap">
     <div class="auth-box" style="max-width:480px">
         <h1>Créer un compte</h1>
 
@@ -101,18 +102,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" id="mot_de_passe2" name="mot_de_passe2"
                        required autocomplete="new-password">
             </div>
-            <button type="submit" class="btn" style="width:100%">Créer mon compte</button>
+            <button type="submit" class="btn btn-dark" style="width:100%">Créer mon compte</button>
         </form>
 
         <p class="text-sm text-muted mt-2" style="text-align:center">
             Déjà inscrit ? <a href="/mini-projet/login.php">Se connecter</a>
         </p>
     </div>
+    </div>
 </main>
 
 <footer>
-    <div class="container">
-        <a href="#">Mentions légales</a> &mdash; EduLib &copy; <?= date('Y') ?>
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="footer-logo">EduLib</span>
+            <div class="footer-social">
+                <a href="#"><span aria-hidden="true">IG</span><span class="sr-only">Instagram</span></a>
+                <a href="#"><span aria-hidden="true">in</span><span class="sr-only">LinkedIn</span></a>
+                <a href="#"><span aria-hidden="true">✕</span><span class="sr-only">X / Twitter</span></a>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <strong>Navigation</strong>
+                <a href="/mini-projet/">Accueil</a>
+                <a href="/mini-projet/resources.php">Ressources</a>
+                <a href="/mini-projet/add-resource.php">Déposer une fiche</a>
+            </div>
+            <div class="footer-col">
+                <strong>Compte</strong>
+                <a href="/mini-projet/login.php">Connexion</a>
+                <a href="/mini-projet/register.php">S'inscrire</a>
+                <a href="/mini-projet/profile.php">Mon profil</a>
+            </div>
+            <div class="footer-col">
+                <strong>Légal</strong>
+                <a href="#">Mentions légales</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
     </div>
 </footer>
 
