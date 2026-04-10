@@ -73,7 +73,7 @@ define('UPLOAD_ALLOWED_TYPES', ['image/jpeg', 'image/png', 'image/webp', 'image/
  * Traite un fichier uploadé depuis $_FILES[$field].
  * Retourne le nom du fichier enregistré, null si aucun fichier, ou lance une exception.
  */
-function handleImageUpload(string $field): string {
+function handleImageUpload(string $field) {
     if (empty($_FILES[$field]['name'])) return null;
 
     $file = $_FILES[$field];
@@ -101,8 +101,13 @@ function handleImageUpload(string $field): string {
     return $filename;
 }
 
-function deleteImageFile(string $filename): void {
-    if ($filename && file_exists(UPLOAD_DIR . $filename)) {
-        unlink(UPLOAD_DIR . $filename);
+function deleteImageFile($filename) {
+    if (!is_string($filename) || $filename === '') {
+        return;
+    }
+
+    $path = UPLOAD_DIR . $filename;
+    if (file_exists($path)) {
+        unlink($path);
     }
 }
